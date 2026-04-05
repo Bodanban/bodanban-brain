@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "Brain Decoder",
+  "version": "1.0",
+  "description": "Décode le War Room privé",
+  "permissions": ["activeTab", "scripting"],
+  "host_permissions": [
+    "https://bodanban.github.io/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://bodanban.github.io/bodanban-brain/*"],
+      "js": ["decoder.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "icons": {
+    "48": "icon.png"
+  }
+}
