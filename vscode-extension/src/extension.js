@@ -275,200 +275,383 @@ ${encryptedPrompt || '[À générer avec encode-tool.html]'}
 <head>
 <meta charset="UTF-8">
 <style>
+  :root {
+    --accent: #7c3aed;
+    --accent-hover: #6d28d9;
+    --accent-dim: #7c3aed22;
+    --green: #22c55e;
+    --red: #ef4444;
+    --yellow: #eab308;
+  }
   * { margin:0; padding:0; box-sizing:border-box; }
   body {
     background: var(--vscode-sideBar-background);
     color: var(--vscode-foreground);
     font-family: var(--vscode-font-family);
     font-size: 12px;
-    padding: 8px;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
   }
-  .btn {
-    display: block; width: 100%;
-    background: #7c3aed; color: white; border: none;
-    padding: 7px 12px; border-radius: 6px; cursor: pointer;
-    font-size: 11px; font-weight: 600; margin-bottom: 6px;
-    text-align: left; letter-spacing: 0.02em;
+
+  /* ── HEADER ── */
+  .header {
+    padding: 12px 12px 8px;
+    border-bottom: 1px solid var(--vscode-panel-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
   }
-  .btn:hover { background: #6d28d9; }
-  .btn.secondary {
-    background: transparent;
+  .logo {
+    display: flex; align-items: center; gap: 7px;
+    font-weight: 700; font-size: 12px; letter-spacing: 0.02em;
+  }
+  .logo-hex {
+    width: 22px; height: 22px;
+    background: var(--accent); border-radius: 5px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; color: white;
+  }
+  .header-actions { display: flex; gap: 4px; }
+  .icon-btn {
+    background: transparent; border: none; cursor: pointer;
+    color: var(--vscode-descriptionForeground);
+    padding: 3px 5px; border-radius: 4px; font-size: 14px;
+    transition: background 0.15s, color 0.15s;
+  }
+  .icon-btn:hover { background: var(--vscode-list-hoverBackground); color: var(--vscode-foreground); }
+
+  /* ── TABS ── */
+  .tabs {
+    display: flex;
+    border-bottom: 1px solid var(--vscode-panel-border);
+    flex-shrink: 0;
+  }
+  .tab {
+    flex: 1; padding: 7px 4px; text-align: center;
+    font-size: 10px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.06em; cursor: pointer;
+    color: var(--vscode-descriptionForeground);
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+  }
+  .tab:hover { color: var(--vscode-foreground); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* ── CONTENU ── */
+  .tab-content { display: none; flex: 1; overflow-y: auto; padding: 10px; }
+  .tab-content.active { display: flex; flex-direction: column; gap: 6px; }
+
+  /* ── PROJETS ── */
+  .project-card {
+    background: var(--vscode-editor-background);
     border: 1px solid var(--vscode-panel-border);
-    color: var(--vscode-foreground);
+    border-radius: 7px; padding: 8px 10px; cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    display: flex; align-items: center; justify-content: space-between; gap: 6px;
   }
-  .btn.secondary:hover { background: var(--vscode-list-hoverBackground); }
-  .section-title {
+  .project-card:hover { border-color: var(--accent); background: var(--accent-dim); }
+  .project-name { font-size: 11px; font-weight: 600; }
+  .project-date { font-size: 9px; color: var(--vscode-descriptionForeground); margin-top: 2px; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .dot.active { background: var(--green); }
+  .dot.building { background: var(--yellow); }
+  .dot.lost { background: var(--red); }
+  .empty-state {
+    text-align: center; color: var(--vscode-descriptionForeground);
+    font-size: 11px; padding: 20px 0; opacity: 0.7;
+  }
+
+  /* ── BOUTONS ── */
+  .btn-primary {
+    background: var(--accent); color: white; border: none;
+    padding: 8px 12px; border-radius: 7px; cursor: pointer;
+    font-size: 11px; font-weight: 700; width: 100%;
+    letter-spacing: 0.03em; transition: background 0.15s;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-secondary {
+    background: transparent; border: 1px solid var(--vscode-panel-border);
+    color: var(--vscode-foreground); padding: 7px 12px; border-radius: 7px;
+    cursor: pointer; font-size: 11px; width: 100%;
+    transition: background 0.15s; display: flex; align-items: center;
+    justify-content: center; gap: 6px;
+  }
+  .btn-secondary:hover { background: var(--vscode-list-hoverBackground); }
+
+  /* ── FORMULAIRE ── */
+  .form-group { display: flex; flex-direction: column; gap: 3px; }
+  .form-label {
     font-size: 10px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 0.08em; color: var(--vscode-descriptionForeground);
-    margin: 12px 0 6px;
+    letter-spacing: 0.07em; color: var(--vscode-descriptionForeground);
   }
-  .project-item {
-    padding: 6px 8px; border-radius: 4px; cursor: pointer;
-    border: 1px solid transparent; margin-bottom: 3px;
-    font-size: 11px;
-  }
-  .project-item:hover { background: var(--vscode-list-hoverBackground); border-color: var(--vscode-panel-border); }
-  .overlay {
-    position: fixed; inset: 0;
-    background: var(--vscode-sideBar-background);
-    padding: 12px; overflow-y: auto;
-    display: none; z-index: 100;
-  }
-  .overlay.active { display: block; }
-  label { display: block; font-size: 10px; color: var(--vscode-descriptionForeground); margin-bottom: 3px; margin-top: 8px; }
-  input, textarea, select {
-    width: 100%; background: var(--vscode-input-background);
+  .form-input {
+    background: var(--vscode-input-background);
     border: 1px solid var(--vscode-input-border);
     color: var(--vscode-input-foreground);
-    padding: 5px 7px; border-radius: 4px; font-size: 11px;
-    font-family: inherit; resize: vertical;
+    padding: 6px 8px; border-radius: 5px; font-size: 11px;
+    font-family: inherit; width: 100%;
+    transition: border-color 0.15s;
   }
+  .form-input:focus { outline: none; border-color: var(--accent); }
+  textarea.form-input { resize: vertical; min-height: 60px; }
+  select.form-input { cursor: pointer; }
+  .form-hint { font-size: 9px; color: var(--vscode-descriptionForeground); opacity: 0.7; }
+
+  /* ── CONFIG ── */
+  .token-row { display: flex; gap: 5px; }
+  .token-row .form-input { flex: 1; font-family: monospace; letter-spacing: 0.05em; }
+  .token-status {
+    font-size: 10px; padding: 4px 8px; border-radius: 4px; margin-top: 4px;
+    display: none;
+  }
+  .token-status.ok { display: block; background: #22c55e15; color: var(--green); border: 1px solid #22c55e33; }
+  .token-status.missing { display: block; background: #ef444415; color: var(--red); border: 1px solid #ef444433; }
+
+  /* ── SÉPARATEUR ── */
+  .sep { height: 1px; background: var(--vscode-panel-border); margin: 4px 0; flex-shrink: 0; }
+  .section-label {
+    font-size: 9px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.1em; color: var(--vscode-descriptionForeground);
+    padding: 4px 0 2px; flex-shrink: 0;
+  }
+
+  /* ── TOAST ── */
   .toast {
-    position: fixed; bottom: 12px; left: 8px; right: 8px;
-    padding: 8px 12px; border-radius: 6px; font-size: 11px;
-    display: none; z-index: 200;
+    position: fixed; bottom: 10px; left: 8px; right: 8px;
+    padding: 8px 12px; border-radius: 7px; font-size: 11px;
+    font-weight: 600; opacity: 0; transition: opacity 0.25s;
+    pointer-events: none; z-index: 999; text-align: center;
   }
-  .toast.success { background: #22c55e22; border: 1px solid #22c55e44; color: #22c55e; }
-  .toast.error { background: #ef444422; border: 1px solid #ef444444; color: #ef4444; }
-  .config-row { display: flex; gap: 4px; align-items: flex-end; }
-  .config-row input { flex: 1; }
+  .toast.success { background: #22c55e18; border: 1px solid #22c55e44; color: var(--green); }
+  .toast.error { background: #ef444418; border: 1px solid #ef444444; color: var(--red); }
+  .toast.show { opacity: 1; }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--vscode-panel-border); border-radius: 4px; }
 </style>
 </head>
 <body>
 
-<!-- Vue principale -->
-<div id="main">
-  <button class="btn" onclick="openSave()">+ Save Project & History</button>
-  <button class="btn secondary" onclick="openWarRoom()">⬡ Ouvrir War Room</button>
-
-  <div class="section-title">Projets</div>
-  <div id="projects-list"><div style="color:var(--vscode-descriptionForeground);font-size:11px">Chargement...</div></div>
-
-  <div class="section-title">Config</div>
-  <label>GitHub Token</label>
-  <div class="config-row">
-    <input type="password" id="gh-token" placeholder="ghp_..." />
-    <button class="btn" style="width:auto;padding:5px 10px;margin:0" onclick="saveToken()">OK</button>
+<!-- HEADER -->
+<div class="header">
+  <div class="logo">
+    <div class="logo-hex">⬡</div>
+    <span>Brain Sync</span>
+  </div>
+  <div class="header-actions">
+    <button class="icon-btn" onclick="openWarRoom()" title="Ouvrir War Room">🌐</button>
+    <button class="icon-btn" onclick="refreshProjects()" title="Actualiser">↻</button>
   </div>
 </div>
 
-<!-- Overlay Save Session -->
-<div class="overlay" id="save-overlay">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-    <strong style="font-size:12px">Save Project & History</strong>
-    <span onclick="closeSave()" style="cursor:pointer;font-size:16px;color:var(--vscode-descriptionForeground)">✕</span>
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('projets')">Projets</div>
+  <div class="tab" onclick="switchTab('sauvegarder')">Sauvegarder</div>
+  <div class="tab" onclick="switchTab('config')">Config</div>
+</div>
+
+<!-- TAB : PROJETS -->
+<div class="tab-content active" id="tab-projets">
+  <div class="section-label">Mes projets</div>
+  <div id="projects-list">
+    <div class="empty-state">Chargement...</div>
+  </div>
+  <div class="sep"></div>
+  <button class="btn-primary" onclick="switchTab('sauvegarder')">
+    <span>＋</span> Nouvelle sauvegarde
+  </button>
+</div>
+
+<!-- TAB : SAUVEGARDER -->
+<div class="tab-content" id="tab-sauvegarder">
+
+  <div class="form-group">
+    <div class="form-label">Nom du projet *</div>
+    <input class="form-input" id="s-name" placeholder="ex : Faso Code" />
   </div>
 
-  <label>Nom du projet *</label>
-  <input id="s-name" placeholder="Faso Code" />
+  <div class="form-group">
+    <div class="form-label">Phrase courte</div>
+    <input class="form-input" id="s-tagline" placeholder="ex : App permis de conduire BF" />
+  </div>
 
-  <label>Tagline courte</label>
-  <input id="s-tagline" placeholder="App permis de conduire BF" />
+  <div class="form-group">
+    <div class="form-label">Statut</div>
+    <select class="form-input" id="s-status">
+      <option value="En build">🟡 En build</option>
+      <option value="Actif">🟢 Actif</option>
+      <option value="À reconstruire">🔴 À reconstruire</option>
+      <option value="Planifié">⚪ Planifié</option>
+      <option value="Abandonné">⛔ Abandonné</option>
+    </select>
+  </div>
 
-  <label>Statut</label>
-  <select id="s-status">
-    <option>En build</option>
-    <option>Actif</option>
-    <option>À reconstruire</option>
-    <option>Planifié</option>
-    <option>Abandonné</option>
-  </select>
+  <div class="form-group">
+    <div class="form-label">Dossier local</div>
+    <input class="form-input" id="s-folder" placeholder="ex : Application de permis" />
+    <div class="form-hint">Nom du dossier dans THE WAR/</div>
+  </div>
 
-  <label>Dossier local (dans THE WAR/)</label>
-  <input id="s-folder" placeholder="Application de permis" />
+  <div class="form-group">
+    <div class="form-label">Ce qu'on a fait cette session</div>
+    <textarea class="form-input" id="s-notes" placeholder="- Implémenté le système XP&#10;- Corrigé le bug de navigation..."></textarea>
+  </div>
 
-  <label>Ce qu'on a accompli cette session</label>
-  <textarea id="s-notes" rows="3" placeholder="- Implémenté le système XP&#10;- Corrigé le bug de navigation..."></textarea>
+  <div class="form-group">
+    <div class="form-label">Où en est le projet</div>
+    <textarea class="form-input" id="s-state" placeholder="Décris l'état exact du projet aujourd'hui"></textarea>
+  </div>
 
-  <label>État actuel du projet</label>
-  <textarea id="s-state" rows="3" placeholder="Où en est le projet exactement aujourd'hui"></textarea>
+  <div class="form-group">
+    <div class="form-label">🔐 Prompt de reprise</div>
+    <textarea class="form-input" id="s-prompt" style="min-height:80px" placeholder="Tu es Claude, je reprends [projet]...&#10;Contexte complet pour repartir de zéro.&#10;&#10;Ce texte sera chiffré AES-256 avant d'être sauvegardé."></textarea>
+    <div class="form-hint">⟦ Sera chiffré automatiquement ⟧</div>
+  </div>
 
-  <label>Prompt de reprise (sera chiffré)</label>
-  <textarea id="s-prompt" rows="5" placeholder="Tu es Claude, je reprends [projet]... contexte complet pour repartir de zéro"></textarea>
+  <button class="btn-primary" onclick="saveSession()">
+    <span>💾</span> Sauvegarder dans bodanban-brain
+  </button>
+  <button class="btn-secondary" onclick="resetForm()">
+    Vider le formulaire
+  </button>
+</div>
 
-  <button class="btn" style="margin-top:12px" onclick="saveSession()">Sauvegarder dans bodanban-brain</button>
-  <button class="btn secondary" onclick="closeSave()">Annuler</button>
+<!-- TAB : CONFIG -->
+<div class="tab-content" id="tab-config">
+
+  <div class="form-group">
+    <div class="form-label">Token GitHub</div>
+    <div class="token-row">
+      <input class="form-input" type="password" id="gh-token" placeholder="ghp_••••••••••••••••" autocomplete="off" />
+      <button class="btn-primary" style="width:auto;padding:6px 12px" onclick="saveToken()">OK</button>
+    </div>
+    <div class="form-hint">Scope requis : <strong>repo</strong></div>
+    <div class="token-status" id="token-status"></div>
+  </div>
+
+  <div class="sep"></div>
+
+  <div class="section-label">À propos</div>
+  <div style="font-size:10px;color:var(--vscode-descriptionForeground);line-height:1.6">
+    <div>Brain Sync v1.0</div>
+    <div>Chiffrement : AES-256-GCM</div>
+    <div>Repo : Bodanban/bodanban-brain</div>
+  </div>
+
+  <div class="sep"></div>
+  <button class="btn-secondary" onclick="openWarRoom()">
+    <span>🌐</span> Ouvrir le War Room
+  </button>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-  const vscode = acquireVsCodeApi();
+const vscode = acquireVsCodeApi();
+vscode.postMessage({ type: 'load' });
+vscode.postMessage({ type: 'getToken' });
 
-  // Charger config et projets au démarrage
-  vscode.postMessage({ type: 'load' });
-  vscode.postMessage({ type: 'getToken' });
-
-  window.addEventListener('message', e => {
-    const msg = e.data;
-    if (msg.type === 'projects') renderProjects(msg.data);
-    if (msg.type === 'config') {
-      if (msg.token) document.getElementById('gh-token').value = msg.token;
+window.addEventListener('message', e => {
+  const msg = e.data;
+  if (msg.type === 'projects') renderProjects(msg.data);
+  if (msg.type === 'config') {
+    if (msg.token) {
+      document.getElementById('gh-token').value = msg.token;
+      showTokenStatus(true);
+    } else {
+      showTokenStatus(false);
     }
-    if (msg.type === 'success') showToast(msg.msg, 'success');
-    if (msg.type === 'error') showToast(msg.msg, 'error');
-    if (msg.type === 'openSave') openSave();
+  }
+  if (msg.type === 'success') { showToast(msg.msg, 'success'); resetForm(); switchTab('projets'); refreshProjects(); }
+  if (msg.type === 'error') showToast(msg.msg, 'error');
+  if (msg.type === 'openSave') switchTab('sauvegarder');
+});
+
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t,i) => {
+    const names = ['projets','sauvegarder','config'];
+    t.classList.toggle('active', names[i] === name);
   });
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+}
 
-  function renderProjects(projects) {
-    const list = document.getElementById('projects-list');
-    if (!projects.length) {
-      list.innerHTML = '<div style="color:var(--vscode-descriptionForeground);font-size:11px">Aucun projet trouvé</div>';
-      return;
-    }
-    list.innerHTML = projects.map(p =>
-      \`<div class="project-item" onclick="prefillSave('\${p.name}')">
-        \${p.name.replace(/-/g, ' ').replace(/\\b\\w/g, l => l.toUpperCase())}
-      </div>\`
-    ).join('');
+function renderProjects(projects) {
+  const list = document.getElementById('projects-list');
+  if (!projects.length) {
+    list.innerHTML = '<div class="empty-state">Aucun projet trouvé<br><small>Configure ton token GitHub</small></div>';
+    return;
   }
+  const dots = { 'faso-code':'building','be-simple':'building','brand-wizard':'lost' };
+  list.innerHTML = projects.map(p => {
+    const dot = dots[p.name] || 'active';
+    const label = p.name.replace(/-/g,' ').replace(/\\b\\w/g, l => l.toUpperCase());
+    return \`<div class="project-card" onclick="prefillSave('\${p.name}')">
+      <div>
+        <div class="project-name">\${label}</div>
+        <div class="project-date">Cliquer pour reprendre</div>
+      </div>
+      <div class="dot \${dot}"></div>
+    </div>\`;
+  }).join('');
+}
 
-  function prefillSave(name) {
-    document.getElementById('s-name').value = name.replace(/-/g, ' ').replace(/\\b\\w/g, l => l.toUpperCase());
-    openSave();
-  }
+function prefillSave(name) {
+  document.getElementById('s-name').value = name.replace(/-/g,' ').replace(/\\b\\w/g, l => l.toUpperCase());
+  switchTab('sauvegarder');
+}
 
-  function openSave() {
-    document.getElementById('save-overlay').classList.add('active');
-  }
+function refreshProjects() { vscode.postMessage({ type: 'load' }); }
+function openWarRoom() { vscode.postMessage({ type: 'warroom' }); }
 
-  function closeSave() {
-    document.getElementById('save-overlay').classList.remove('active');
-  }
+function saveToken() {
+  const token = document.getElementById('gh-token').value.trim();
+  if (!token) { showToast('Colle ton token GitHub d\\'abord', 'error'); return; }
+  vscode.postMessage({ type: 'save', data: { __setToken: token } });
+  showTokenStatus(true);
+  showToast('Token sauvegardé ✓', 'success');
+}
 
-  function openWarRoom() {
-    vscode.postMessage({ type: 'warroom' });
-  }
+function showTokenStatus(ok) {
+  const el = document.getElementById('token-status');
+  el.className = 'token-status ' + (ok ? 'ok' : 'missing');
+  el.textContent = ok ? '✓ Token configuré' : '✗ Token manquant — ajoute-le ci-dessus';
+}
 
-  function saveToken() {
-    // Stocker via extension (pas en localStorage — sécurité)
-    const token = document.getElementById('gh-token').value.trim();
-    vscode.postMessage({ type: 'save', data: { __setToken: token } });
-    showToast('Token sauvegardé', 'success');
-  }
+function saveSession() {
+  const name = document.getElementById('s-name').value.trim();
+  if (!name) { showToast('Le nom du projet est requis', 'error'); return; }
+  vscode.postMessage({ type: 'save', data: {
+    projectName: name,
+    tagline: document.getElementById('s-tagline').value.trim(),
+    status: document.getElementById('s-status').value,
+    localFolder: document.getElementById('s-folder').value.trim(),
+    sessionNotes: document.getElementById('s-notes').value.trim(),
+    currentState: document.getElementById('s-state').value.trim(),
+    prompt: document.getElementById('s-prompt').value.trim(),
+  }});
+}
 
-  function saveSession() {
-    const name = document.getElementById('s-name').value.trim();
-    if (!name) { showToast('Nom du projet requis', 'error'); return; }
-    vscode.postMessage({ type: 'save', data: {
-      projectName: name,
-      tagline: document.getElementById('s-tagline').value.trim(),
-      status: document.getElementById('s-status').value,
-      localFolder: document.getElementById('s-folder').value.trim(),
-      sessionNotes: document.getElementById('s-notes').value.trim(),
-      currentState: document.getElementById('s-state').value.trim(),
-      prompt: document.getElementById('s-prompt').value.trim(),
-    }});
-    closeSave();
-  }
+function resetForm() {
+  ['s-name','s-tagline','s-folder','s-notes','s-state','s-prompt'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('s-status').value = 'En build';
+}
 
-  function showToast(msg, type) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.className = \`toast \${type}\`;
-    t.style.display = 'block';
-    setTimeout(() => t.style.display = 'none', 3000);
-  }
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = \`toast \${type} show\`;
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
 </script>
 </body>
 </html>`;
