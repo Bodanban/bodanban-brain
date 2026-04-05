@@ -1,71 +1,49 @@
-// BRAIN DECODER — Dictionnaire local privé
-// Ce fichier ne quitte jamais ta machine
+// BRAIN DECODER v3 — Content Script
+// Injecte decoder-core.js puis décode tout le DOM
 
-const DICT = {
-  // GitHub
-  "§GH_USER§":        "Bodanban",
-  "§GH_BRAIN§":       "Bodanban/bodanban-brain",
-  "§GH_CRM§":         "Bodanban/letto-cake-crm",
-  "§GH_LEVY§":        "Bodanban/levychristian-site",
-  "§GH_MODE§":        "Bodanban/mode-switch",
-  "§GH_WIZARD§":      "Bodanban/levy-brand-wizard",
-  "§GH_UJKZ§":        "bodanban.github.io/ujkz-medecine-listes",
-
-  // Domaines & URLs
-  "§DOM_BS§":         "besimple.levychristian.com",
-  "§DOM_UJKZ§":       "bodanban.github.io/ujkz-medecine-listes",
-
-  // Clients & noms
-  "§CLIENT_CAKE§":    "Pâtisserie Arlette",
-  "§CLIENT_LEVY§":    "Levy Christian",
-  "§ACCOUNT_X§":      "@ayanakoshi",
-
-  // Clés & IDs sensibles
-  "§ADSENSE§":        "pub-7632568438658075",
-  "§HOST§":           "Hostinger",
-
-  // Projets
-  "§PROJ_ZOLIA§":     "Zoliais (Brand Wizard)",
-  "§DATE_LOST§":      "05/04/2026",
-};
-
-function decode(text) {
-  let result = text;
-  for (const [token, value] of Object.entries(DICT)) {
-    result = result.split(token).join(value);
+(async () => {
+  // Attendre que decoder-core soit chargé
+  let attempts = 0;
+  while (!window.__BrainDecoder && attempts < 50) {
+    await new Promise(r => setTimeout(r, 50));
+    attempts++;
   }
-  return result;
-}
-
-function decodeNode(node) {
-  if (node.nodeType === Node.TEXT_NODE) {
-    const decoded = decode(node.textContent);
-    if (decoded !== node.textContent) {
-      node.textContent = decoded;
-    }
-  } else if (node.nodeType === Node.ELEMENT_NODE) {
-    // Décoder les attributs href et title aussi
-    if (node.hasAttribute('href')) {
-      node.setAttribute('href', decode(node.getAttribute('href')));
-    }
-    if (node.hasAttribute('title')) {
-      node.setAttribute('title', decode(node.getAttribute('title')));
-    }
-    node.childNodes.forEach(decodeNode);
+  if (!window.__BrainDecoder) {
+    console.error('[BrainDecoder] Core non chargé');
+    return;
   }
-}
 
-// Décoder tout le body
-decodeNode(document.body);
+  const { decodeDOM } = window.__BrainDecoder;
 
-// Badge discret pour confirmer que le décodeur est actif
-const badge = document.createElement('div');
-badge.style.cssText = `
-  position: fixed; bottom: 1rem; right: 1rem;
-  background: #22c55e22; border: 1px solid #22c55e44;
-  color: #22c55e; font-size: 0.65rem; font-family: monospace;
-  padding: 4px 10px; border-radius: 20px; z-index: 9999;
-  letter-spacing: 0.05em; font-weight: 600;
-`;
-badge.textContent = '⬡ DECODED';
-document.body.appendChild(badge);
+  // Décoder le DOM complet
+  await decodeDOM(document.body);
+
+  // Décoder les data-prompt sur les cartes (pour les boutons Reprendre)
+  document.querySelectorAll('[data-prompt]').forEach(el => {
+    el.addEventListener('click', () => {
+      const prompt = el.getAttribute('data-prompt');
+      if (prompt) {
+        navigator.clipboard.writeText(prompt);
+        const original = el.textContent;
+        el.textContent = '✓ Copié';
+        setTimeout(() => el.textContent = original, 2000);
+      }
+    });
+  });
+
+  // Badge
+  const badge = document.createElement('div');
+  badge.style.cssText = `
+    position: fixed; bottom: 1rem; right: 1rem;
+    background: #22c55e18; border: 1px solid #22c55e55;
+    color: #22c55e; font-size: 0.62rem; font-family: 'SF Mono', monospace;
+    padding: 4px 12px; border-radius: 20px; z-index: 9999;
+    letter-spacing: 0.08em; font-weight: 700; cursor: default;
+    user-select: none;
+  `;
+  badge.title = 'Brain Decoder v3 — AES-256-GCM actif';
+  badge.textContent = '⬡ DECODED v3';
+  document.body.appendChild(badge);
+
+  console.log('[BrainDecoder v3] AES-256-GCM — DOM déchiffré');
+})();

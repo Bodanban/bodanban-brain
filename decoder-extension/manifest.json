@@ -1,16 +1,16 @@
 {
   "manifest_version": 3,
   "name": "Brain Decoder",
-  "version": "1.0",
-  "description": "Décode le War Room privé",
-  "permissions": ["activeTab", "scripting"],
+  "version": "3.0",
+  "description": "Déchiffre le War Room — AES-256-GCM",
+  "permissions": ["activeTab", "scripting", "clipboardWrite"],
   "host_permissions": [
     "https://bodanban.github.io/*"
   ],
   "content_scripts": [
     {
       "matches": ["https://bodanban.github.io/bodanban-brain/*"],
-      "js": ["decoder.js"],
+      "js": ["decoder-core.js", "decoder.js"],
       "run_at": "document_idle"
     }
   ],

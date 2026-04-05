@@ -1,0 +1,45 @@
+{
+  "name": "brain-sync",
+  "displayName": "Brain Sync — Bodanban",
+  "description": "Save project context & history to bodanban-brain",
+  "version": "1.0.0",
+  "publisher": "bodanban",
+  "engines": { "vscode": "^1.85.0" },
+  "categories": ["Other"],
+  "activationEvents": ["onStartupFinished"],
+  "main": "./src/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [{
+        "id": "brain-sync",
+        "title": "Brain Sync",
+        "icon": "media/icon.svg"
+      }]
+    },
+    "views": {
+      "brain-sync": [
+        { "id": "brain-projects", "name": "Mes projets", "type": "webview" }
+      ]
+    },
+    "commands": [
+      {
+        "command": "brain-sync.saveSession",
+        "title": "Brain Sync: Save Project & History"
+      },
+      {
+        "command": "brain-sync.openWarRoom",
+        "title": "Brain Sync: Ouvrir War Room"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "brain-sync.saveSession",
+        "key": "ctrl+shift+b",
+        "mac": "cmd+shift+b"
+      }
+    ]
+  },
+  "dependencies": {
+    "@octokit/rest": "^20.0.0"
+  }
+}

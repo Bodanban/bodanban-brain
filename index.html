@@ -6,514 +6,363 @@
   <title>§GH_USER§ Brain — War Room</title>
   <style>
     :root {
-      --bg: #0a0a0f;
-      --surface: #111118;
-      --border: #1e1e2e;
-      --accent: #7c3aed;
-      --accent2: #06b6d4;
-      --text: #e2e8f0;
-      --muted: #64748b;
-      --green: #22c55e;
-      --yellow: #eab308;
-      --red: #ef4444;
-      --orange: #f97316;
+      --bg: #0a0a0f; --surface: #111118; --border: #1e1e2e;
+      --accent: #7c3aed; --accent2: #06b6d4; --text: #e2e8f0;
+      --muted: #64748b; --green: #22c55e; --yellow: #eab308;
+      --red: #ef4444; --orange: #f97316;
     }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'SF Mono', 'Fira Code', monospace;
-      min-height: 100vh;
-      padding: 2rem;
-    }
-    header {
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 1.5rem;
-      margin-bottom: 2rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    header h1 {
-      font-size: 1.4rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      color: var(--text);
-    }
-    header h1 span { color: var(--accent); }
-    .date { color: var(--muted); font-size: 0.75rem; }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-      gap: 1rem;
-      margin-bottom: 3rem;
-    }
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1.25rem;
-      transition: border-color 0.2s;
-    }
-    .card:hover { border-color: var(--accent); }
-    .card-header {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      margin-bottom: 0.75rem;
-    }
-    .card-title {
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: var(--text);
-    }
-    .card-subtitle {
-      font-size: 0.72rem;
-      color: var(--muted);
-      margin-top: 2px;
-    }
-    .badge {
-      font-size: 0.65rem;
-      font-weight: 600;
-      padding: 2px 8px;
-      border-radius: 20px;
-      white-space: nowrap;
-    }
-    .badge.active { background: #22c55e22; color: var(--green); border: 1px solid #22c55e44; }
-    .badge.building { background: #eab30822; color: var(--yellow); border: 1px solid #eab30844; }
-    .badge.planned { background: #64748b22; color: var(--muted); border: 1px solid #64748b44; }
-    .badge.lost { background: #ef444422; color: var(--red); border: 1px solid #ef444444; }
-    .badge.refonte { background: #f9731622; color: var(--orange); border: 1px solid #f9731644; }
-    .card-desc {
-      font-size: 0.78rem;
-      color: #94a3b8;
-      line-height: 1.5;
-      margin-bottom: 0.75rem;
-    }
-    .stack {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
-      margin-bottom: 0.75rem;
-    }
-    .tag {
-      font-size: 0.62rem;
-      background: #1e1e2e;
-      color: var(--muted);
-      padding: 2px 6px;
-      border-radius: 4px;
-      border: 1px solid #2e2e3e;
-    }
-    .next {
-      font-size: 0.72rem;
-      color: var(--accent2);
-      border-top: 1px solid var(--border);
-      padding-top: 0.6rem;
-      margin-top: 0.4rem;
-    }
-    .next::before { content: "→ "; opacity: 0.6; }
-    .section-title {
-      font-size: 0.7rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--muted);
-      margin-bottom: 1rem;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .section-title::after {
-      content: "";
-      flex: 1;
-      height: 1px;
-      background: var(--border);
-    }
-    .prompt-section {
-      background: var(--surface);
-      border: 1px solid var(--accent);
-      border-radius: 12px;
-      padding: 1.5rem;
-      margin-top: 2rem;
-    }
-    .prompt-label {
-      font-size: 0.7rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--accent);
-      margin-bottom: 1rem;
-    }
-    .prompt-box {
-      background: #0a0a0f;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 1rem 1.25rem;
-      font-size: 0.8rem;
-      line-height: 1.7;
-      color: #94a3b8;
-      white-space: pre-wrap;
-      cursor: pointer;
-      transition: border-color 0.2s;
-      position: relative;
-    }
-    .prompt-box:hover { border-color: var(--accent2); }
-    .copy-btn {
-      position: absolute;
-      top: 0.75rem;
-      right: 0.75rem;
-      background: var(--accent);
-      color: white;
-      border: none;
-      border-radius: 6px;
-      padding: 4px 10px;
-      font-size: 0.65rem;
-      font-family: inherit;
-      cursor: pointer;
-      font-weight: 600;
-      letter-spacing: 0.05em;
-    }
-    .copy-btn:hover { background: #6d28d9; }
-    .iterations {
-      margin-top: 3rem;
-    }
-    .iter-item {
-      border-left: 2px solid var(--border);
-      padding: 0.75rem 1rem;
-      margin-bottom: 0.75rem;
-      transition: border-color 0.2s;
-    }
-    .iter-item:hover { border-color: var(--accent); }
-    .iter-date { font-size: 0.65rem; color: var(--muted); margin-bottom: 4px; }
-    .iter-title { font-size: 0.85rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
-    .iter-lesson { font-size: 0.75rem; color: #94a3b8; line-height: 1.5; }
-    .iter-lesson strong { color: var(--yellow); }
-    .github-link {
-      font-size: 0.7rem;
-      color: var(--muted);
-      text-decoration: none;
-      border: 1px solid var(--border);
-      padding: 2px 8px;
-      border-radius: 4px;
-      display: inline-block;
-      margin-top: 0.5rem;
-      transition: color 0.2s, border-color 0.2s;
-    }
-    .github-link:hover { color: var(--accent2); border-color: var(--accent2); }
-    .rule {
-      background: #22c55e11;
-      border: 1px solid #22c55e33;
-      border-radius: 8px;
-      padding: 0.75rem 1rem;
-      font-size: 0.78rem;
-      color: var(--green);
-      margin-top: 1.5rem;
-    }
-    .rule strong { font-weight: 700; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background:var(--bg); color:var(--text); font-family:'SF Mono','Fira Code',monospace; min-height:100vh; padding:2rem; }
+
+    /* HEADER */
+    header { border-bottom:1px solid var(--border); padding-bottom:1.5rem; margin-bottom:1.5rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; }
+    header h1 { font-size:1.3rem; font-weight:700; letter-spacing:-0.02em; }
+    header h1 span { color:var(--accent); }
+    .date { color:var(--muted); font-size:0.72rem; }
+
+    /* FILTERS */
+    .filters { display:flex; gap:6px; margin-bottom:1.5rem; flex-wrap:wrap; }
+    .filter-btn { font-size:0.65rem; font-weight:700; padding:4px 12px; border-radius:20px; border:1px solid var(--border); background:transparent; color:var(--muted); cursor:pointer; letter-spacing:0.05em; text-transform:uppercase; transition:all 0.15s; }
+    .filter-btn:hover, .filter-btn.active { border-color:var(--accent); color:var(--accent); background:#7c3aed11; }
+
+    /* GRID */
+    .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:1rem; margin-bottom:3rem; }
+    .card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:1.25rem; transition:border-color 0.2s, transform 0.15s; display:flex; flex-direction:column; }
+    .card:hover { border-color:#7c3aed66; transform:translateY(-1px); }
+    .card.hidden { display:none; }
+    .card-header { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:0.75rem; gap:8px; }
+    .card-title { font-size:0.92rem; font-weight:700; color:var(--text); }
+    .card-subtitle { font-size:0.7rem; color:var(--muted); margin-top:2px; }
+    .badge { font-size:0.62rem; font-weight:700; padding:2px 8px; border-radius:20px; white-space:nowrap; }
+    .badge.active { background:#22c55e22; color:var(--green); border:1px solid #22c55e44; }
+    .badge.building { background:#eab30822; color:var(--yellow); border:1px solid #eab30844; }
+    .badge.planned { background:#64748b22; color:var(--muted); border:1px solid #64748b44; }
+    .badge.lost { background:#ef444422; color:var(--red); border:1px solid #ef444444; }
+    .badge.refonte { background:#f9731622; color:var(--orange); border:1px solid #f9731644; }
+    .card-desc { font-size:0.76rem; color:#94a3b8; line-height:1.6; margin-bottom:0.75rem; flex:1; }
+    .stack { display:flex; flex-wrap:wrap; gap:4px; margin-bottom:0.75rem; }
+    .tag { font-size:0.6rem; background:#1e1e2e; color:var(--muted); padding:2px 6px; border-radius:4px; border:1px solid #2e2e3e; }
+    .card-footer { border-top:1px solid var(--border); padding-top:0.75rem; margin-top:auto; display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; }
+    .next { font-size:0.7rem; color:var(--accent2); flex:1; }
+    .next::before { content:"→ "; opacity:0.6; }
+    .resume-btn { font-size:0.65rem; font-weight:700; padding:4px 12px; border-radius:6px; background:var(--accent); color:white; border:none; cursor:pointer; letter-spacing:0.04em; white-space:nowrap; transition:background 0.15s; }
+    .resume-btn:hover { background:#6d28d9; }
+    .resume-btn.no-prompt { background:#1e1e2e; color:var(--muted); border:1px solid var(--border); cursor:default; }
+    .github-link { font-size:0.65rem; color:var(--muted); text-decoration:none; border:1px solid var(--border); padding:2px 8px; border-radius:4px; transition:color 0.15s,border-color 0.15s; }
+    .github-link:hover { color:var(--accent2); border-color:var(--accent2); }
+
+    /* SECTION TITLE */
+    .section-title { font-size:0.68rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--muted); margin-bottom:1rem; display:flex; align-items:center; gap:8px; }
+    .section-title::after { content:""; flex:1; height:1px; background:var(--border); }
+
+    /* MODAL */
+    .modal-overlay { position:fixed; inset:0; background:#00000088; z-index:100; display:none; align-items:center; justify-content:center; padding:1rem; }
+    .modal-overlay.active { display:flex; }
+    .modal { background:var(--surface); border:1px solid var(--accent); border-radius:16px; padding:1.5rem; max-width:600px; width:100%; max-height:80vh; overflow-y:auto; }
+    .modal-title { font-size:0.9rem; font-weight:700; color:var(--text); margin-bottom:0.5rem; }
+    .modal-sub { font-size:0.72rem; color:var(--muted); margin-bottom:1rem; }
+    .prompt-label { font-size:0.65rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--accent); margin-bottom:0.75rem; }
+    .prompt-box { background:#0a0a0f; border:1px solid var(--border); border-radius:8px; padding:1rem; font-size:0.75rem; line-height:1.7; color:#94a3b8; white-space:pre-wrap; font-family:'SF Mono','Fira Code',monospace; }
+    .modal-actions { display:flex; gap:8px; margin-top:1rem; flex-wrap:wrap; }
+    .copy-btn { background:var(--accent); color:white; border:none; border-radius:6px; padding:7px 16px; font-size:0.72rem; font-family:inherit; cursor:pointer; font-weight:700; }
+    .copy-btn:hover { background:#6d28d9; }
+    .close-btn { background:var(--border); color:var(--text); border:none; border-radius:6px; padding:7px 16px; font-size:0.72rem; font-family:inherit; cursor:pointer; }
+
+    /* ITERATIONS */
+    .iter-item { border-left:2px solid var(--border); padding:0.75rem 1rem; margin-bottom:0.75rem; transition:border-color 0.15s; }
+    .iter-item:hover { border-color:var(--accent); }
+    .iter-date { font-size:0.62rem; color:var(--muted); margin-bottom:4px; }
+    .iter-title { font-size:0.82rem; font-weight:700; color:var(--text); margin-bottom:4px; }
+    .iter-lesson { font-size:0.73rem; color:#94a3b8; line-height:1.6; }
+    .iter-lesson strong { color:var(--yellow); }
+    .rule { background:#22c55e11; border:1px solid #22c55e33; border-radius:8px; padding:0.75rem 1rem; font-size:0.76rem; color:var(--green); margin-top:1.5rem; }
+
+    /* ONE PROMPT */
+    .prompt-section { background:var(--surface); border:1px solid var(--accent); border-radius:12px; padding:1.5rem; margin-top:2rem; }
+    .global-prompt-box { background:#0a0a0f; border:1px solid var(--border); border-radius:8px; padding:1rem 1.25rem; font-size:0.78rem; line-height:1.7; color:#94a3b8; white-space:pre-wrap; position:relative; }
+
+    /* TOAST */
+    .toast { position:fixed; bottom:1.5rem; right:1.5rem; background:#22c55e18; border:1px solid #22c55e55; color:var(--green); font-size:0.7rem; font-family:'SF Mono',monospace; padding:6px 14px; border-radius:20px; z-index:999; opacity:0; transition:opacity 0.3s; pointer-events:none; font-weight:700; letter-spacing:0.05em; }
+    .toast.show { opacity:1; }
   </style>
 </head>
 <body>
 
 <header>
   <div>
-    <h1><span>⬡</span> BODANBAN BRAIN</h1>
-    <div class="date">War Room — Mis à jour : Avril 2026</div>
+    <h1><span>⬡</span> WAR ROOM</h1>
+    <div class="date">github.com/§GH_USER§ · Avril 2026</div>
   </div>
-  <div class="date">github.com/§GH_USER§</div>
+  <div class="filters">
+    <button class="filter-btn active" onclick="filterCards('all')">Tous</button>
+    <button class="filter-btn" onclick="filterCards('active')">Actifs</button>
+    <button class="filter-btn" onclick="filterCards('building')">En build</button>
+    <button class="filter-btn" onclick="filterCards('lost')">À reconstruire</button>
+    <button class="filter-btn" onclick="filterCards('refonte')">Refonte</button>
+  </div>
 </header>
 
 <!-- PROJETS ACTIFS -->
 <div class="section-title">Projets actifs</div>
 <div class="grid">
 
-  <div class="card">
+  <div class="card" data-status="building">
     <div class="card-header">
-      <div>
-        <div class="card-title">Faso Code</div>
-        <div class="card-subtitle">Application de permis de conduire BF</div>
-      </div>
+      <div><div class="card-title">Faso Code</div><div class="card-subtitle">App permis de conduire BF</div></div>
       <span class="badge building">En build</span>
     </div>
-    <div class="card-desc">App mobile freemium pour préparer le permis de conduire au Burkina Faso. Quiz, diapositives officielles, gamification (XP, badges, niveaux, streaks), mode examen blanc.</div>
-    <div class="stack">
-      <span class="tag">React Native</span>
-      <span class="tag">Expo SDK 54</span>
-      <span class="tag">TypeScript</span>
-      <span class="tag">Zustand</span>
-      <span class="tag">AsyncStorage</span>
+    <div class="card-desc">App mobile freemium React Native Expo v2. Quiz, diapositives officielles, gamification (XP, badges, streaks), mode examen blanc. Cible : candidats BF.</div>
+    <div class="stack"><span class="tag">React Native</span><span class="tag">Expo SDK 54</span><span class="tag">TypeScript</span><span class="tag">Zustand</span></div>
+    <div class="card-footer">
+      <span class="next">Finaliser écrans, publier Play Store</span>
+      <button class="resume-btn" onclick="showPrompt('Faso Code','projects/faso-code.md')">Reprendre</button>
     </div>
-    <div class="next">Finaliser les écrans, publier sur Play Store</div>
-    <a class="github-link" href="https://github.com/§GH_USER§" target="_blank">repo privé</a>
   </div>
 
-  <div class="card">
+  <div class="card" data-status="building">
     <div class="card-header">
-      <div>
-        <div class="card-title">Be Simple</div>
-        <div class="card-subtitle">§DOM_BS§</div>
-      </div>
+      <div><div class="card-title">Be Simple</div><div class="card-subtitle">§DOM_BS§</div></div>
       <span class="badge building">En build</span>
     </div>
-    <div class="card-desc">SaaS formation + système d'affiliation MLM. Modules, leçons, commissions, blog, newsletter. AdSense configuré (§ADSENSE§).</div>
-    <div class="stack">
-      <span class="tag">React</span>
-      <span class="tag">TypeScript</span>
-      <span class="tag">Vite</span>
-      <span class="tag">Supabase</span>
-      <span class="tag">§HOST§</span>
+    <div class="card-desc">SaaS formation + affiliation MLM. Modules, leçons, commissions, blog. AdSense configuré (§ADSENSE§). Hébergé sur §HOST§.</div>
+    <div class="stack"><span class="tag">React</span><span class="tag">TypeScript</span><span class="tag">Vite</span><span class="tag">Supabase</span></div>
+    <div class="card-footer">
+      <span class="next">Remplir modules, activer AdSense</span>
+      <button class="resume-btn" onclick="showPrompt('Be Simple','projects/be-simple.md')">Reprendre</button>
     </div>
-    <div class="next">Remplir modules et leçons, activer AdSense</div>
   </div>
 
-  <div class="card">
+  <div class="card" data-status="active">
     <div class="card-header">
-      <div>
-        <div class="card-title">auto pari</div>
-        <div class="card-subtitle">Paris hippiques IA — expérience 1 an</div>
-      </div>
+      <div><div class="card-title">auto pari</div><div class="card-subtitle">Paris hippiques IA</div></div>
       <span class="badge active">Actif</span>
     </div>
-    <div class="card-desc">Système automatisé de paris hippiques piloté par IA. Analyse données, prédiction, pari automatique. Backend + dashboard de monitoring.</div>
-    <div class="stack">
-      <span class="tag">Node.js</span>
-      <span class="tag">IA</span>
-      <span class="tag">Dashboard</span>
+    <div class="card-desc">Système automatisé de paris hippiques piloté par IA. Analyse données, prédiction, pari automatique. Expérience sur 1 an.</div>
+    <div class="stack"><span class="tag">Node.js</span><span class="tag">IA</span><span class="tag">Dashboard</span></div>
+    <div class="card-footer">
+      <span class="next">Calibrer algo, monitorer résultats</span>
+      <button class="resume-btn no-prompt">Prompt à créer</button>
     </div>
-    <div class="next">Calibrer l'algorithme, monitorer les résultats</div>
   </div>
 
-  <div class="card">
+  <div class="card" data-status="refonte">
     <div class="card-header">
-      <div>
-        <div class="card-title">Content Manager 2026</div>
-        <div class="card-subtitle">Pipeline contenu IA automatisé</div>
-      </div>
+      <div><div class="card-title">Content Manager 2026</div><div class="card-subtitle">Pipeline contenu IA</div></div>
       <span class="badge refonte">Refonte</span>
     </div>
-    <div class="card-desc">Gestionnaire de contenu IA multi-plateforme. En refonte pour remplacer Docker par OrbStack (migration Mac).</div>
-    <div class="stack">
-      <span class="tag">Python</span>
-      <span class="tag">Celery</span>
-      <span class="tag">OrbStack</span>
-      <span class="tag">Alembic</span>
+    <div class="card-desc">Gestionnaire contenu IA multi-plateforme. En refonte : Docker → OrbStack pour la migration Mac.</div>
+    <div class="stack"><span class="tag">Python</span><span class="tag">Celery</span><span class="tag">OrbStack</span><span class="tag">Alembic</span></div>
+    <div class="card-footer">
+      <span class="next">Adapter pour OrbStack sur Mac</span>
+      <button class="resume-btn no-prompt">Prompt à créer</button>
     </div>
-    <div class="next">Adapter docker-compose pour OrbStack sur Mac</div>
   </div>
 
-  <div class="card">
+  <div class="card" data-status="active">
     <div class="card-header">
-      <div>
-        <div class="card-title">CRM Letto Cake v2</div>
-        <div class="card-subtitle">§CLIENT_CAKE§</div>
-      </div>
+      <div><div class="card-title">CRM Letto Cake v2</div><div class="card-subtitle">§CLIENT_CAKE§</div></div>
       <span class="badge active">Actif</span>
     </div>
-    <div class="card-desc">CRM pour pâtisserie Letto Cake. Gestion commandes, production, livraison, paiements. Version 2 complète.</div>
-    <div class="stack">
-      <span class="tag">Next.js</span>
-      <span class="tag">TypeScript</span>
-      <span class="tag">Prisma</span>
+    <div class="card-desc">CRM pâtisserie. Gestion commandes, production, livraison, paiements. Version 2 complète.</div>
+    <div class="stack"><span class="tag">Next.js</span><span class="tag">TypeScript</span><span class="tag">Prisma</span></div>
+    <div class="card-footer">
+      <span class="next">Déployer chez le client</span>
+      <a class="github-link" href="https://github.com/§GH_CRM§" target="_blank">§GH_CRM§</a>
     </div>
-    <div class="next">Déployer chez le client</div>
-    <a class="github-link" href="https://github.com/§GH_CRM§" target="_blank">§GH_CRM§</a>
   </div>
 
-  <div class="card">
+  <div class="card" data-status="active">
     <div class="card-header">
-      <div>
-        <div class="card-title">Levy Christian — Site</div>
-        <div class="card-subtitle">Portfolio client</div>
-      </div>
+      <div><div class="card-title">§CLIENT_LEVY§ — Site</div><div class="card-subtitle">Portfolio client</div></div>
       <span class="badge active">Actif</span>
     </div>
-    <div class="card-desc">Site portfolio de Levy Christian. 23 pages indexables, 12 articles blog optimisés, outils intégrés. AdSense configuré.</div>
-    <div class="stack">
-      <span class="tag">Astro</span>
-      <span class="tag">Tailwind</span>
-      <span class="tag">GSAP</span>
+    <div class="card-desc">Site portfolio. 23 pages indexables, 12 articles blog SEO, outils intégrés (tools). AdSense configuré.</div>
+    <div class="stack"><span class="tag">Astro</span><span class="tag">Tailwind</span><span class="tag">GSAP</span></div>
+    <div class="card-footer">
+      <span class="next">Intégrer Brand Wizard dans tools</span>
+      <a class="github-link" href="https://github.com/§GH_LEVY§" target="_blank">§GH_LEVY§</a>
     </div>
-    <div class="next">Intégrer Brand Wizard dans tools</div>
-    <a class="github-link" href="https://github.com/§GH_LEVY§" target="_blank">§GH_LEVY§</a>
   </div>
 
-  <div class="card">
+  <div class="card" data-status="active">
     <div class="card-header">
-      <div>
-        <div class="card-title">X-Twitter-Growth-Bot</div>
-        <div class="card-subtitle">§ACCOUNT_X§ — 0 → 1000 followers</div>
-      </div>
+      <div><div class="card-title">X-Twitter-Growth-Bot</div><div class="card-subtitle">§ACCOUNT_X§ — 0 → 1000</div></div>
       <span class="badge active">Actif</span>
     </div>
-    <div class="card-desc">Chrome extension qui automatise un compte X anime 18+ sans API payante. Génère les tweets via Gemini 1.5 Flash (free tier).</div>
-    <div class="stack">
-      <span class="tag">Chrome Extension MV3</span>
-      <span class="tag">React</span>
-      <span class="tag">Vite</span>
-      <span class="tag">Gemini API</span>
+    <div class="card-desc">Chrome extension automation X sans API payante. Génère tweets via Gemini 1.5 Flash (free tier). Dashboard local de monitoring.</div>
+    <div class="stack"><span class="tag">Chrome Ext MV3</span><span class="tag">React</span><span class="tag">Gemini API</span></div>
+    <div class="card-footer">
+      <span class="next">Monitorer croissance via dashboard.html</span>
+      <button class="resume-btn no-prompt">Prompt à créer</button>
     </div>
-    <div class="next">Monitorer via dashboard.html, viser 1000 followers</div>
   </div>
 
-  <div class="card">
+  <div class="card" data-status="active">
     <div class="card-header">
-      <div>
-        <div class="card-title">UJKZ Médecine Listes</div>
-        <div class="card-subtitle">Corrections collaboratives en temps réel</div>
-      </div>
+      <div><div class="card-title">UJKZ Médecine Listes</div><div class="card-subtitle">Corrections collaboratives</div></div>
       <span class="badge active">Live</span>
     </div>
-    <div class="card-desc">App collaborative pour corrections des listes officielles UJKZ. Étudiants soumettent, profs exportent en Word.</div>
-    <div class="stack">
-      <span class="tag">Firebase</span>
-      <span class="tag">GitHub Pages</span>
-      <span class="tag">HTML/JS</span>
+    <div class="card-desc">App collaborative corrections listes UJKZ. Étudiants soumettent, profs exportent en Word. Firebase + GitHub Pages.</div>
+    <div class="stack"><span class="tag">Firebase</span><span class="tag">GitHub Pages</span><span class="tag">HTML/JS</span></div>
+    <div class="card-footer">
+      <span class="next">Maintenance corrections</span>
+      <a class="github-link" href="https://§GH_UJKZ§/" target="_blank">Voir le site</a>
     </div>
-    <div class="next">Maintenance et corrections étudiants</div>
-    <a class="github-link" href="https://§GH_UJKZ§/" target="_blank">Voir le site</a>
   </div>
 
-  <div class="card">
+  <div class="card" data-status="active">
     <div class="card-header">
-      <div>
-        <div class="card-title">No Reflection (Mode Switch)</div>
-        <div class="card-subtitle">Dashboard opérationnel personnel</div>
-      </div>
+      <div><div class="card-title">Mode Switch</div><div class="card-subtitle">Dashboard opérationnel</div></div>
       <span class="badge active">Actif</span>
     </div>
-    <div class="card-desc">Tableau de bord personnel 7 modes. Pas une app de productivité — un commutateur d'état quotidien. Protocoles clairs par mode.</div>
-    <div class="stack">
-      <span class="tag">HTML</span>
-      <span class="tag">CSS</span>
-      <span class="tag">JS</span>
+    <div class="card-desc">Tableau de bord 7 modes personnel. Commutateur d'état quotidien avec protocoles par mode. Simple, efficace.</div>
+    <div class="stack"><span class="tag">HTML</span><span class="tag">CSS</span><span class="tag">JS</span></div>
+    <div class="card-footer">
+      <span class="next">Usage quotidien</span>
+      <a class="github-link" href="https://github.com/§GH_MODE§" target="_blank">§GH_MODE§</a>
     </div>
-    <div class="next">Usage quotidien</div>
-    <a class="github-link" href="https://github.com/§GH_MODE§" target="_blank">§GH_MODE§</a>
   </div>
 
-  <div class="card">
+  <div class="card" data-status="building">
     <div class="card-header">
-      <div>
-        <div class="card-title">tools</div>
-        <div class="card-subtitle">Agrégat mini-jeux & outils Levy Christian</div>
-      </div>
+      <div><div class="card-title">tools</div><div class="card-subtitle">Agrégat outils §CLIENT_LEVY§</div></div>
       <span class="badge building">En expansion</span>
     </div>
-    <div class="card-desc">Collection d'outils et mini-jeux pour le site Levy Christian. Calculatrice, take-your-life, tracking. Brand Wizard à intégrer ici.</div>
-    <div class="stack">
-      <span class="tag">HTML</span>
-      <span class="tag">CSS</span>
-      <span class="tag">JS</span>
+    <div class="card-desc">Collection mini-jeux et outils pour le site §CLIENT_LEVY§. Calculator, take-your-life, tracking. Brand Wizard à intégrer ici.</div>
+    <div class="stack"><span class="tag">HTML</span><span class="tag">CSS</span><span class="tag">JS</span></div>
+    <div class="card-footer">
+      <span class="next">Reconstruire Brand Wizard → intégrer</span>
+      <button class="resume-btn no-prompt">Prompt à créer</button>
     </div>
-    <div class="next">Reconstruire Brand Wizard et l'intégrer</div>
   </div>
 
 </div>
 
-<!-- PROJETS À RECONSTRUIRE -->
+<!-- À RECONSTRUIRE -->
 <div class="section-title">À reconstruire</div>
 <div class="grid">
 
-  <div class="card">
+  <div class="card" data-status="lost">
     <div class="card-header">
-      <div>
-        <div class="card-title">Brand Wizard (§PROJ_ZOLIA§)</div>
-        <div class="card-subtitle">SaaS identité de marque</div>
-      </div>
+      <div><div class="card-title">Brand Wizard</div><div class="card-subtitle">§PROJ_ZOLIA§ — SaaS identité marque</div></div>
       <span class="badge lost">Perdu — À reconstruire</span>
     </div>
-    <div class="card-desc">SaaS pour répondre rapidement aux questions de sa marque. Palette couleur, typographie, ton, valeurs. En 9 étapes. Perdu le §DATE_LOST§ — jamais pushé sur GitHub.</div>
-    <div class="stack">
-      <span class="tag">React</span>
-      <span class="tag">À définir</span>
+    <div class="card-desc">SaaS 9 étapes pour définir l'identité d'une marque : palette couleur, typographie, ton, valeurs. Perdu le §DATE_LOST§ — jamais pushé.</div>
+    <div class="stack"><span class="tag">React</span><span class="tag">À définir</span></div>
+    <div class="card-footer">
+      <span class="next">Reconstruire → pusher immédiatement</span>
+      <button class="resume-btn" onclick="showPrompt('Brand Wizard','projects/brand-wizard.md')">Reconstruire</button>
     </div>
-    <div class="next">Reconstruire from scratch, pusher immédiatement dans levy-brand-wizard</div>
-    <a class="github-link" href="https://github.com/§GH_WIZARD§" target="_blank">§GH_WIZARD§ (vide)</a>
   </div>
 
 </div>
 
 <!-- ITERATIONS -->
-<div class="iterations">
-  <div class="section-title">Iterations & leçons</div>
+<div class="section-title" style="margin-top:1rem">Iterations & leçons</div>
 
-  <div class="iter-item">
-    <div class="iter-date">Avril 2026</div>
-    <div class="iter-title">Grand triage de THE WAR</div>
-    <div class="iter-lesson">35 projets obsolètes supprimés. Brand Wizard perdu car jamais pushé. <strong>Règle : tout projet = commit immédiat sur GitHub.</strong></div>
-  </div>
+<div class="iter-item">
+  <div class="iter-date">Avril 2026</div>
+  <div class="iter-title">Grand triage de THE WAR — 35 projets supprimés</div>
+  <div class="iter-lesson"><strong>Leçon :</strong> Brand Wizard perdu car jamais pushé. Règle désormais : commit immédiat GitHub pour tout projet.</div>
+</div>
+<div class="iter-item">
+  <div class="iter-date">Mars 2026</div>
+  <div class="iter-title">UJKZ Firebase auto-seed loop</div>
+  <div class="iter-lesson"><strong>Leçon :</strong> GitHub Pages cache agressivement. Toujours attendre la propagation après un push critique.</div>
+</div>
+<div class="iter-item">
+  <div class="iter-date">Mars 2026</div>
+  <div class="iter-title">Gemini API 429 — gemini-2.0-flash</div>
+  <div class="iter-lesson"><strong>Fix :</strong> Passer à gemini-1.5-flash. Free tier plus généreux.</div>
+</div>
+<div class="iter-item">
+  <div class="iter-date">Janvier 2026</div>
+  <div class="iter-title">Google Forms MCP — Service Account impossible</div>
+  <div class="iter-lesson"><strong>Leçon :</strong> Les Service Accounts ne peuvent pas créer de Google Forms. Vérifier les limitations API avant de s'engager.</div>
+</div>
 
-  <div class="iter-item">
-    <div class="iter-date">Mars 2026</div>
-    <div class="iter-title">UJKZ Firebase auto-seed loop</div>
-    <div class="iter-lesson">GitHub Pages cachait l'ancien JS qui re-seedait Firebase. Fix : supprimer le code de seed + attendre propagation. <strong>Leçon : GitHub Pages cache agressivement.</strong></div>
-  </div>
+<div class="rule"><strong>Règle d'or :</strong> Toute idée entamée = commit immédiat sur GitHub. Même un README vide. Jamais de projet uniquement en local.</div>
 
-  <div class="iter-item">
-    <div class="iter-date">Mars 2026</div>
-    <div class="iter-title">Gemini API 429 — gemini-2.0-flash</div>
-    <div class="iter-lesson">Quota free tier dépassé avec 2.0-flash. <strong>Fix : passer à gemini-1.5-flash.</strong></div>
-  </div>
+<!-- ONE PROMPT GLOBAL -->
+<div class="prompt-section" style="margin-top:2rem">
+  <div class="prompt-label">⚡ One Prompt — Remettre Claude dans le contexte global</div>
+  <div class="global-prompt-box" id="global-prompt">Tu es Claude, mon assistant de développement. Je suis §GH_USER§ — développeur/créateur au Burkina Faso. Stack : React, TypeScript, React Native (Expo), Node.js, Python. Migration en cours Windows PC → Mac (OrbStack remplace Docker).
 
-  <div class="iter-item">
-    <div class="iter-date">Janvier 2026</div>
-    <div class="iter-title">Google Forms MCP — Service Account impossible</div>
-    <div class="iter-lesson">Les Service Accounts ne peuvent pas créer de Google Forms. <strong>Leçon : vérifier les limitations API avant de s'engager.</strong></div>
-  </div>
+Projets actifs : Faso Code (React Native Expo, permis BF), Be Simple (SaaS MLM, §DOM_BS§), auto pari (IA hippique), Content Manager 2026 (Python/OrbStack), CRM Letto Cake v2, §CLIENT_LEVY§ site (Astro), §ACCOUNT_X§ bot (Chrome ext + Gemini), UJKZ listes (Firebase/Pages), Mode Switch, tools.
 
-  <div class="iter-item">
-    <div class="iter-date">2025</div>
-    <div class="iter-title">3 éditeurs de design abandonnés</div>
-    <div class="iter-lesson">layerhub-test, Editor Test, editeur perso — tous abandonnés. <strong>Leçon : les éditeurs de design from scratch = plusieurs années de travail.</strong></div>
-  </div>
+À reconstruire : Brand Wizard (§PROJ_ZOLIA§) — repo §GH_WIZARD§ vide.
 
-  <div class="rule">
-    <strong>Règle d'or :</strong> Toute idée entamée = commit immédiat sur GitHub. Même un README vide. Jamais de projet uniquement en local.
+Règle d'or : tout projet entamé = commit GitHub immédiat.
+Brain repo : §GH_BRAIN§ — lis PLAYGROUND.md et ITERATIONS.md pour le contexte complet.
+
+Sur quel projet tu veux qu'on travaille ?</div>
+  <div style="margin-top:0.75rem">
+    <button class="copy-btn" onclick="copyGlobal()">Copier le prompt global</button>
   </div>
 </div>
 
-<!-- ONE PROMPT -->
-<div class="prompt-section">
-  <div class="prompt-label">⚡ One Prompt — Remettre Claude dans le contexte</div>
-  <div class="prompt-box" id="prompt">
-Tu es Claude, mon assistant de développement. Voici mon contexte complet pour reprendre là où on s'est arrêtés.
-
-Je suis §GH_USER§ — développeur/créateur basé au Burkina Faso. Stack principal : React, TypeScript, React Native (Expo), Node.js, Python. En transition Windows PC → Mac (OrbStack remplace Docker).
-
-Mes projets actifs :
-- Faso Code : app mobile permis de conduire BF, React Native Expo v2, freemium, gamification
-- Be Simple : SaaS formation + MLM affiliation, React+Supabase, §DOM_BS§
-- auto pari : système IA paris hippiques automatisé, Node.js, expérience 1 an
-- Content Manager 2026 : pipeline contenu IA, Python/Celery, en refonte pour OrbStack
-- CRM Letto Cake v2 : CRM §CLIENT_CAKE§ (crm 2 test), Next.js + Prisma
-- Levy Christian site : Astro + Tailwind + GSAP, client actif
-- X-Twitter-Growth-Bot : Chrome extension §ACCOUNT_X§ 0→1000 followers, Gemini 1.5 Flash
-- UJKZ médecine listes : Firebase + GitHub Pages, live
-- Mode Switch : dashboard 7 modes personnel
-- tools : mini-jeux et outils pour Levy Christian (Brand Wizard à intégrer)
-
-À reconstruire : Brand Wizard (§PROJ_ZOLIA§) — SaaS palette couleur + identité de marque, perdu le §DATE_LOST§, repo GitHub vide : §GH_WIZARD§
-
-Règle d'or : tout projet entamé = commit immédiat GitHub.
-
-Mon GitHub : https://github.com/§GH_USER§
-Mon brain repo (privé) : https://github.com/§GH_BRAIN§
-
-Lis PLAYGROUND.md et ITERATIONS.md dans bodanban-brain pour le contexte complet.
-
-Sur quel projet tu veux qu'on travaille ?
-    <button class="copy-btn" onclick="copyPrompt()">COPIER</button>
+<!-- MODAL PROMPT DE REPRISE -->
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-title" id="modal-title">Reprendre le projet</div>
+    <div class="modal-sub" id="modal-sub">Copie ce prompt dans une nouvelle conversation Claude</div>
+    <div class="prompt-label">Prompt de reprise</div>
+    <div class="prompt-box" id="modal-prompt">Chargement...</div>
+    <div class="modal-actions">
+      <button class="copy-btn" onclick="copyModalPrompt()">Copier le prompt</button>
+      <button class="close-btn" onclick="document.getElementById('modal').classList.remove('active')">Fermer</button>
+    </div>
   </div>
 </div>
+
+<div class="toast" id="toast">✓ Copié</div>
 
 <script>
-  function copyPrompt() {
-    const text = document.getElementById('prompt').innerText.replace('COPIER', '').trim();
-    navigator.clipboard.writeText(text).then(() => {
-      const btn = document.querySelector('.copy-btn');
-      btn.textContent = 'COPIÉ ✓';
-      setTimeout(() => btn.textContent = 'COPIER', 2000);
-    });
-  }
+// ─── Filtres ───────────────────────────────────────────────────────────────────
+function filterCards(status) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  document.querySelectorAll('.card').forEach(c => {
+    c.classList.toggle('hidden', status !== 'all' && c.dataset.status !== status);
+  });
+}
+
+// ─── Modal prompt de reprise ──────────────────────────────────────────────────
+const PROMPTS = {
+  'Faso Code': `Tu es Claude, mon assistant dev. Je reprends Faso Code, mon app mobile React Native Expo pour le permis de conduire au Burkina Faso. Stack : Expo SDK 54, TypeScript, Zustand, AsyncStorage. Le projet est dans THE WAR/Application de permis. Le CLAUDE.md du projet contient tout le détail technique. On en est à v2.0.0. Lis le CLAUDE.md et dis-moi où on en est exactement, puis propose les prochaines étapes pour avancer vers la publication Play Store.`,
+
+  'Be Simple': `Tu es Claude, mon assistant dev. Je reprends Be Simple, mon SaaS de formation + MLM. Stack : React + TypeScript + Vite + Supabase. Le projet est dans THE WAR/Be simple. Les tables Supabase sont créées (users, transactions, commissions, modules, lessons, progress). Il faut remplir le contenu des modules/leçons et finaliser le flow MLM (commissions, withdrawal). Lis PROJECT_CONTEXT.md dans le dossier et propose les prochaines étapes.`,
+
+  'Brand Wizard': `Tu es Claude, mon assistant dev. Je veux reconstruire Brand Wizard, un SaaS en 9 étapes pour définir l'identité d'une marque : palette couleur, typographie, ton, valeurs, positionnement. Le repo GitHub est §GH_WIZARD§ (vide). Stack : React + Vite, léger, peut tourner en statique sur GitHub Pages. L'outil sera intégré dans mon projet tools pour le site §CLIENT_LEVY§. Commence par me proposer l'architecture et les 9 étapes du wizard, puis on code.`,
+};
+
+function showPrompt(projectName, mdPath) {
+  document.getElementById('modal-title').textContent = projectName;
+  document.getElementById('modal-sub').textContent = `projects/${mdPath.split('/').pop()}`;
+  const prompt = PROMPTS[projectName] || `Prompt de reprise pour ${projectName} — à créer via Brain Sync VS Code.`;
+  document.getElementById('modal-prompt').textContent = prompt;
+  document.getElementById('modal').classList.add('active');
+}
+
+function closeModal(e) {
+  if (e.target.id === 'modal') document.getElementById('modal').classList.remove('active');
+}
+
+function copyModalPrompt() {
+  const text = document.getElementById('modal-prompt').textContent;
+  navigator.clipboard.writeText(text).then(() => showToast());
+}
+
+function copyGlobal() {
+  const text = document.getElementById('global-prompt').textContent;
+  navigator.clipboard.writeText(text).then(() => showToast());
+}
+
+function showToast() {
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
 </script>
 
 </body>
