@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bodanban Brain — War Room</title>
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #111118;
+      --border: #1e1e2e;
+      --accent: #7c3aed;
+      --accent2: #06b6d4;
+      --text: #e2e8f0;
+      --muted: #64748b;
+      --green: #22c55e;
+      --yellow: #eab308;
+      --red: #ef4444;
+      --orange: #f97316;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1.5rem;
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    header h1 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text);
+    }
+    header h1 span { color: var(--accent); }
+    .date { color: var(--muted); font-size: 0.75rem; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 1rem;
+      margin-bottom: 3rem;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      transition: border-color 0.2s;
+    }
+    .card:hover { border-color: var(--accent); }
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+    }
+    .card-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .card-subtitle {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .badge {
+      font-size: 0.65rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+    .badge.active { background: #22c55e22; color: var(--green); border: 1px solid #22c55e44; }
+    .badge.building { background: #eab30822; color: var(--yellow); border: 1px solid #eab30844; }
+    .badge.planned { background: #64748b22; color: var(--muted); border: 1px solid #64748b44; }
+    .badge.lost { background: #ef444422; color: var(--red); border: 1px solid #ef444444; }
+    .badge.refonte { background: #f9731622; color: var(--orange); border: 1px solid #f9731644; }
+    .card-desc {
+      font-size: 0.78rem;
+      color: #94a3b8;
+      line-height: 1.5;
+      margin-bottom: 0.75rem;
+    }
+    .stack {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-bottom: 0.75rem;
+    }
+    .tag {
+      font-size: 0.62rem;
+      background: #1e1e2e;
+      color: var(--muted);
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid #2e2e3e;
+    }
+    .next {
+      font-size: 0.72rem;
+      color: var(--accent2);
+      border-top: 1px solid var(--border);
+      padding-top: 0.6rem;
+      margin-top: 0.4rem;
+    }
+    .next::before { content: "→ "; opacity: 0.6; }
+    .section-title {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-title::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+    .prompt-section {
+      background: var(--surface);
+      border: 1px solid var(--accent);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-top: 2rem;
+    }
+    .prompt-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent);
+      margin-bottom: 1rem;
+    }
+    .prompt-box {
+      background: #0a0a0f;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      font-size: 0.8rem;
+      line-height: 1.7;
+      color: #94a3b8;
+      white-space: pre-wrap;
+      cursor: pointer;
+      transition: border-color 0.2s;
+      position: relative;
+    }
+    .prompt-box:hover { border-color: var(--accent2); }
+    .copy-btn {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 0.65rem;
+      font-family: inherit;
+      cursor: pointer;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+    }
+    .copy-btn:hover { background: #6d28d9; }
+    .iterations {
+      margin-top: 3rem;
+    }
+    .iter-item {
+      border-left: 2px solid var(--border);
+      padding: 0.75rem 1rem;
+      margin-bottom: 0.75rem;
+      transition: border-color 0.2s;
+    }
+    .iter-item:hover { border-color: var(--accent); }
+    .iter-date { font-size: 0.65rem; color: var(--muted); margin-bottom: 4px; }
+    .iter-title { font-size: 0.85rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .iter-lesson { font-size: 0.75rem; color: #94a3b8; line-height: 1.5; }
+    .iter-lesson strong { color: var(--yellow); }
+    .github-link {
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-decoration: none;
+      border: 1px solid var(--border);
+      padding: 2px 8px;
+      border-radius: 4px;
+      display: inline-block;
+      margin-top: 0.5rem;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .github-link:hover { color: var(--accent2); border-color: var(--accent2); }
+    .rule {
+      background: #22c55e11;
+      border: 1px solid #22c55e33;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      font-size: 0.78rem;
+      color: var(--green);
+      margin-top: 1.5rem;
+    }
+    .rule strong { font-weight: 700; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1><span>⬡</span> BODANBAN BRAIN</h1>
+    <div class="date">War Room — Mis à jour : Avril 2026</div>
+  </div>
+  <div class="date">github.com/Bodanban</div>
+</header>
+
+<!-- PROJETS ACTIFS -->
+<div class="section-title">Projets actifs</div>
+<div class="grid">
+
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">Faso Code</div>
+        <div class="card-subtitle">Application de permis de conduire BF</div>
+      </div>
+      <span class="badge building">En build</span>
+    </div>
+    <div class="card-desc">App mobile freemium pour préparer le permis de conduire au Burkina Faso. Quiz, diapositives officielles, gamification (XP, badges, niveaux, streaks), mode examen blanc.</div>
+    <div class="stack">
+      <span class="tag">React Native</span>
+      <span class="tag">Expo SDK 54</span>
+      <span class="tag">TypeScript</span>
+      <span class="tag">Zustand</span>
+      <span class="tag">AsyncStorage</span>
+    </div>
+    <div class="next">Finaliser les écrans, publier sur Play Store</div>
+    <a class="github-link" href="https://github.com/Bodanban" target="_blank">repo privé</a>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">Be Simple</div>
+        <div class="card-subtitle">besimple.levychristian.com</div>
+      </div>
+      <span class="badge building">En build</span>
+    </div>
+    <div class="card-desc">SaaS formation + système d'affiliation MLM. Modules, leçons, commissions, blog, newsletter. AdSense configuré (pub-7632568438658075).</div>
+    <div class="stack">
+      <span class="tag">React</span>
+      <span class="tag">TypeScript</span>
+      <span class="tag">Vite</span>
+      <span class="tag">Supabase</span>
+      <span class="tag">Hostinger</span>
+    </div>
+    <div class="next">Remplir modules et leçons, activer AdSense</div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">auto pari</div>
+        <div class="card-subtitle">Paris hippiques IA — expérience 1 an</div>
+      </div>
+      <span class="badge active">Actif</span>
+    </div>
+    <div class="card-desc">Système automatisé de paris hippiques piloté par IA. Analyse données, prédiction, pari automatique. Backend + dashboard de monitoring.</div>
+    <div class="stack">
+      <span class="tag">Node.js</span>
+      <span class="tag">IA</span>
+      <span class="tag">Dashboard</span>
+    </div>
+    <div class="next">Calibrer l'algorithme, monitorer les résultats</div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">Content Manager 2026</div>
+        <div class="card-subtitle">Pipeline contenu IA automatisé</div>
+      </div>
+      <span class="badge refonte">Refonte</span>
+    </div>
+    <div class="card-desc">Gestionnaire de contenu IA multi-plateforme. En refonte pour remplacer Docker par OrbStack (migration Mac).</div>
+    <div class="stack">
+      <span class="tag">Python</span>
+      <span class="tag">Celery</span>
+      <span class="tag">OrbStack</span>
+      <span class="tag">Alembic</span>
+    </div>
+    <div class="next">Adapter docker-compose pour OrbStack sur Mac</div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">CRM Letto Cake v2</div>
+        <div class="card-subtitle">Pâtisserie Arlette</div>
+      </div>
+      <span class="badge active">Actif</span>
+    </div>
+    <div class="card-desc">CRM pour pâtisserie Letto Cake. Gestion commandes, production, livraison, paiements. Version 2 complète.</div>
+    <div class="stack">
+      <span class="tag">Next.js</span>
+      <span class="tag">TypeScript</span>
+      <span class="tag">Prisma</span>
+    </div>
+    <div class="next">Déployer chez le client</div>
+    <a class="github-link" href="https://github.com/Bodanban/letto-cake-crm" target="_blank">Bodanban/letto-cake-crm</a>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">Levy Christian — Site</div>
+        <div class="card-subtitle">Portfolio client</div>
+      </div>
+      <span class="badge active">Actif</span>
+    </div>
+    <div class="card-desc">Site portfolio de Levy Christian. 23 pages indexables, 12 articles blog optimisés, outils intégrés. AdSense configuré.</div>
+    <div class="stack">
+      <span class="tag">Astro</span>
+      <span class="tag">Tailwind</span>
+      <span class="tag">GSAP</span>
+    </div>
+    <div class="next">Intégrer Brand Wizard dans tools</div>
+    <a class="github-link" href="https://github.com/Bodanban/levychristian-site" target="_blank">Bodanban/levychristian-site</a>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">X-Twitter-Growth-Bot</div>
+        <div class="card-subtitle">@ayanakoshi — 0 → 1000 followers</div>
+      </div>
+      <span class="badge active">Actif</span>
+    </div>
+    <div class="card-desc">Chrome extension qui automatise un compte X anime 18+ sans API payante. Génère les tweets via Gemini 1.5 Flash (free tier).</div>
+    <div class="stack">
+      <span class="tag">Chrome Extension MV3</span>
+      <span class="tag">React</span>
+      <span class="tag">Vite</span>
+      <span class="tag">Gemini API</span>
+    </div>
+    <div class="next">Monitorer via dashboard.html, viser 1000 followers</div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">UJKZ Médecine Listes</div>
+        <div class="card-subtitle">Corrections collaboratives en temps réel</div>
+      </div>
+      <span class="badge active">Live</span>
+    </div>
+    <div class="card-desc">App collaborative pour corrections des listes officielles UJKZ. Étudiants soumettent, profs exportent en Word.</div>
+    <div class="stack">
+      <span class="tag">Firebase</span>
+      <span class="tag">GitHub Pages</span>
+      <span class="tag">HTML/JS</span>
+    </div>
+    <div class="next">Maintenance et corrections étudiants</div>
+    <a class="github-link" href="https://bodanban.github.io/ujkz-medecine-listes/" target="_blank">Voir le site</a>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">No Reflection (Mode Switch)</div>
+        <div class="card-subtitle">Dashboard opérationnel personnel</div>
+      </div>
+      <span class="badge active">Actif</span>
+    </div>
+    <div class="card-desc">Tableau de bord personnel 7 modes. Pas une app de productivité — un commutateur d'état quotidien. Protocoles clairs par mode.</div>
+    <div class="stack">
+      <span class="tag">HTML</span>
+      <span class="tag">CSS</span>
+      <span class="tag">JS</span>
+    </div>
+    <div class="next">Usage quotidien</div>
+    <a class="github-link" href="https://github.com/Bodanban/mode-switch" target="_blank">Bodanban/mode-switch</a>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">tools</div>
+        <div class="card-subtitle">Agrégat mini-jeux & outils Levy Christian</div>
+      </div>
+      <span class="badge building">En expansion</span>
+    </div>
+    <div class="card-desc">Collection d'outils et mini-jeux pour le site Levy Christian. Calculatrice, take-your-life, tracking. Brand Wizard à intégrer ici.</div>
+    <div class="stack">
+      <span class="tag">HTML</span>
+      <span class="tag">CSS</span>
+      <span class="tag">JS</span>
+    </div>
+    <div class="next">Reconstruire Brand Wizard et l'intégrer</div>
+  </div>
+
+</div>
+
+<!-- PROJETS À RECONSTRUIRE -->
+<div class="section-title">À reconstruire</div>
+<div class="grid">
+
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">Brand Wizard (Zoliais)</div>
+        <div class="card-subtitle">SaaS identité de marque</div>
+      </div>
+      <span class="badge lost">Perdu — À reconstruire</span>
+    </div>
+    <div class="card-desc">SaaS pour répondre rapidement aux questions de sa marque. Palette couleur, typographie, ton, valeurs. En 9 étapes. Perdu le 05/04/2026 — jamais pushé sur GitHub.</div>
+    <div class="stack">
+      <span class="tag">React</span>
+      <span class="tag">À définir</span>
+    </div>
+    <div class="next">Reconstruire from scratch, pusher immédiatement dans levy-brand-wizard</div>
+    <a class="github-link" href="https://github.com/Bodanban/levy-brand-wizard" target="_blank">Bodanban/levy-brand-wizard (vide)</a>
+  </div>
+
+</div>
+
+<!-- ITERATIONS -->
+<div class="iterations">
+  <div class="section-title">Iterations & leçons</div>
+
+  <div class="iter-item">
+    <div class="iter-date">Avril 2026</div>
+    <div class="iter-title">Grand triage de THE WAR</div>
+    <div class="iter-lesson">35 projets obsolètes supprimés. Brand Wizard perdu car jamais pushé. <strong>Règle : tout projet = commit immédiat sur GitHub.</strong></div>
+  </div>
+
+  <div class="iter-item">
+    <div class="iter-date">Mars 2026</div>
+    <div class="iter-title">UJKZ Firebase auto-seed loop</div>
+    <div class="iter-lesson">GitHub Pages cachait l'ancien JS qui re-seedait Firebase. Fix : supprimer le code de seed + attendre propagation. <strong>Leçon : GitHub Pages cache agressivement.</strong></div>
+  </div>
+
+  <div class="iter-item">
+    <div class="iter-date">Mars 2026</div>
+    <div class="iter-title">Gemini API 429 — gemini-2.0-flash</div>
+    <div class="iter-lesson">Quota free tier dépassé avec 2.0-flash. <strong>Fix : passer à gemini-1.5-flash.</strong></div>
+  </div>
+
+  <div class="iter-item">
+    <div class="iter-date">Janvier 2026</div>
+    <div class="iter-title">Google Forms MCP — Service Account impossible</div>
+    <div class="iter-lesson">Les Service Accounts ne peuvent pas créer de Google Forms. <strong>Leçon : vérifier les limitations API avant de s'engager.</strong></div>
+  </div>
+
+  <div class="iter-item">
+    <div class="iter-date">2025</div>
+    <div class="iter-title">3 éditeurs de design abandonnés</div>
+    <div class="iter-lesson">layerhub-test, Editor Test, editeur perso — tous abandonnés. <strong>Leçon : les éditeurs de design from scratch = plusieurs années de travail.</strong></div>
+  </div>
+
+  <div class="rule">
+    <strong>Règle d'or :</strong> Toute idée entamée = commit immédiat sur GitHub. Même un README vide. Jamais de projet uniquement en local.
+  </div>
+</div>
+
+<!-- ONE PROMPT -->
+<div class="prompt-section">
+  <div class="prompt-label">⚡ One Prompt — Remettre Claude dans le contexte</div>
+  <div class="prompt-box" id="prompt">
+Tu es Claude, mon assistant de développement. Voici mon contexte complet pour reprendre là où on s'est arrêtés.
+
+Je suis Bodanban — développeur/créateur basé au Burkina Faso. Stack principal : React, TypeScript, React Native (Expo), Node.js, Python. En transition Windows PC → Mac (OrbStack remplace Docker).
+
+Mes projets actifs :
+- Faso Code : app mobile permis de conduire BF, React Native Expo v2, freemium, gamification
+- Be Simple : SaaS formation + MLM affiliation, React+Supabase, besimple.levychristian.com
+- auto pari : système IA paris hippiques automatisé, Node.js, expérience 1 an
+- Content Manager 2026 : pipeline contenu IA, Python/Celery, en refonte pour OrbStack
+- CRM Letto Cake v2 : CRM pâtisserie Arlette (crm 2 test), Next.js + Prisma
+- Levy Christian site : Astro + Tailwind + GSAP, client actif
+- X-Twitter-Growth-Bot : Chrome extension @ayanakoshi 0→1000 followers, Gemini 1.5 Flash
+- UJKZ médecine listes : Firebase + GitHub Pages, live
+- Mode Switch : dashboard 7 modes personnel
+- tools : mini-jeux et outils pour Levy Christian (Brand Wizard à intégrer)
+
+À reconstruire : Brand Wizard (Zoliais) — SaaS palette couleur + identité de marque, perdu le 05/04/2026, repo GitHub vide : Bodanban/levy-brand-wizard
+
+Règle d'or : tout projet entamé = commit immédiat GitHub.
+
+Mon GitHub : https://github.com/Bodanban
+Mon brain repo (privé) : https://github.com/Bodanban/bodanban-brain
+
+Lis PLAYGROUND.md et ITERATIONS.md dans bodanban-brain pour le contexte complet.
+
+Sur quel projet tu veux qu'on travaille ?
+    <button class="copy-btn" onclick="copyPrompt()">COPIER</button>
+  </div>
+</div>
+
+<script>
+  function copyPrompt() {
+    const text = document.getElementById('prompt').innerText.replace('COPIER', '').trim();
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.querySelector('.copy-btn');
+      btn.textContent = 'COPIÉ ✓';
+      setTimeout(() => btn.textContent = 'COPIER', 2000);
+    });
+  }
+</script>
+
+</body>
+</html>
